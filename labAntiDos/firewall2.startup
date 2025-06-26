@@ -1,0 +1,18 @@
+# toClient
+ip link set dev eth1 address 00:00:00:00:f0:f1
+ip address add 192.168.2.12/24 dev eth1
+
+# toRouter
+ip link set dev eth0 address 00:00:00:00:f0:f2
+ip address add 192.168.1.12/24 dev eth0
+
+echo 1 > /proc/sys/net/ipv4/ip_forward
+
+# Route per raggiungere `pc3` (192.168.3.0/24) attraverso `r1`
+ip route add 192.168.3.0/24 via 192.168.1.1
+
+# Compila Programma eBPF
+cd /home && make
+
+# Esegui Programma eBPF su eth0
+ip link set dev eth0 xdp obj firewall.o sec xdp

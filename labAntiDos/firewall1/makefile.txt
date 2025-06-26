@@ -1,0 +1,22 @@
+# Nome del compilatore
+CC = clang
+
+# Flag per la compilazione
+CFLAGS = -O2 -g -target bpf -Wall -I/usr/include/x86_64-linux-gnu
+
+# File sorgente
+SRC = firewall.c
+
+# File oggetto
+OBJ = firewall.o
+
+# Regola di default
+all: $(OBJ)
+
+# Regola per compilare il file oggetto
+$(OBJ): $(SRC)
+	$(CC) $(CFLAGS) -c $(SRC) -o $(OBJ)
+
+# Regola per pulire i file generati
+clean:
+	rm -f $(OBJ)
