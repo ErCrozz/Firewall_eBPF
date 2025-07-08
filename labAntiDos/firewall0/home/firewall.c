@@ -1,4 +1,4 @@
-//Questo programma blocca i pacchetti dei flussi superiori a 35pps, avendo funzione di rate limiter.
+//Questo programma blocca i flussi superiori a 35pps, anche quando essi tornano sotto la soglia sono comunque considerati malevoli. Blocco permanente.
 
 #include <linux/bpf.h>
 #include <linux/if_ether.h>
@@ -81,6 +81,10 @@ int count_udp_flows(struct xdp_md *ctx) {
 
     struct flow_stats *stats = bpf_map_lookup_elem(&flow_map, &key);
     if (stats) {
+        // se il flusso è bloccato droppa pacchetto
+        if (stats->is_blocked){
+            return XDP_DROP;
+        }
 
         stats->packet_count += 1;
         stats->byte_count += ip_len;
@@ -103,9 +107,11 @@ int count_udp_flows(struct xdp_md *ctx) {
                 // se la media byte al secondo è maggiore della soglia
                 if (stats->avg_bps > BPS_THRESHOLD) {
                     // il traffico in byte è elevato: possibile attacco DDoS
+                    stats->is_blocked = 1;
                     return XDP_DROP;
                 } else if (stats->packet_count > COUNT_THRESHOLD) {
                     // anche se i bps non sono altissimi, il packet_count supera una soglia critica
+                    stats->is_blocked = 1;
                     return XDP_DROP;
                 } else {
                     // traffico elevato in pps ma non abbastanza "pesante" in bps o count
