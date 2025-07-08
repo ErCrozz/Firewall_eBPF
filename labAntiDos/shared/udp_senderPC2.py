@@ -16,7 +16,7 @@ def send_packets(thread_id, packets_per_second_per_thread):
     pkt = IP(dst=DEST_IP) / UDP(sport=SRC_PORT, dport=DEST_PORT) / Raw(f"Thread {thread_id} data")
     interval = 1 / packets_per_second_per_thread  # Intervallo tra pacchetti
 
-    print(f"[Thread {thread_id}] Invio di ~{packets_per_second_per_thread} pacchetti al secondo.")
+    print(f"[Thread {thread_id}] Invio di ~{packets_per_second_per_thread} pacchetti al secondo TEORICI (200 teorici = 42 reali con il mio hardware).")
     
     while True:
         send(pkt, verbose=False)

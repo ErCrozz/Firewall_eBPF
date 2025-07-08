@@ -1,3 +1,5 @@
+//Questo programma blocca i flussi superiori a 35pps, ma quando essi tornano sotto la soglia sono di nuovo considerati benigni e quindi ammessi.
+
 #include <linux/bpf.h>
 #include <linux/if_ether.h>
 #include <linux/ip.h>
@@ -79,10 +81,6 @@ int count_udp_flows(struct xdp_md *ctx) {
 
     struct flow_stats *stats = bpf_map_lookup_elem(&flow_map, &key);
     if (stats) {
-        // se il flusso è bloccato droppa pacchetto
-        if (stats->is_blocked){
-            return XDP_DROP;
-        }
 
         stats->packet_count += 1;
         stats->byte_count += ip_len;
@@ -117,6 +115,7 @@ int count_udp_flows(struct xdp_md *ctx) {
                 }
             } else {
                 // flusso considerato benigno
+                stats->is_blocked = 0;
                 return XDP_PASS;
             }
         }

@@ -1,3 +1,5 @@
+//Questo programma blocca i flussi superiori a 35pps, anche quando essi tornano sotto la soglia sono comunque considerati malevoli. Blocco permanente.
+
 #include <linux/bpf.h>
 #include <linux/if_ether.h>
 #include <linux/ip.h>
